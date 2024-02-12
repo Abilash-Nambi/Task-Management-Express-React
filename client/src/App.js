@@ -7,8 +7,6 @@ import {
   createTheme,
   responsiveFontSizes,
 } from "@mui/material/styles";
-import { Provider } from "react-redux";
-import { store } from "./Redux/store";
 
 let theme = createTheme({
   typography: {
@@ -37,9 +35,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <StyledEngineProvider injectFirst>
-        <Provider store={store}>
-          <HomePage />
-        </Provider>
+        <HomePage />
       </StyledEngineProvider>
     </ThemeProvider>
   );

@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import CustomButton from "../ReUsableComponents/Button/Button";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 import DoneAllTwoToneIcon from "@mui/icons-material/DoneAllTwoTone";
-import { useSelector, useDispatch } from "react-redux";
-import { completedToDo, deleteTodo, initialFetch } from "../../Redux/todoSlice";
+
 import axios from "axios";
 const Wrapper = styled(Box)(({ theme }) => ({
   paddingTop: theme.spacing(1),

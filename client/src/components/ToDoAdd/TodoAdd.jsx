@@ -7,13 +7,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import ZoomInTwoToneIcon from "@mui/icons-material/ZoomInTwoTone";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  AllToDoCompleted,
-  AllUndoCompleted,
-  addTodo,
-  searchToDo,
-} from "../../Redux/todoSlice";
+
 import axios from "axios";
 import ToDoList from "../ToDoList/ToDoList";
 
@@ -66,7 +60,6 @@ const TodoAdd = () => {
   const [toDoList, setToDoList] = useState([]);
   const [toDo, setToDo] = useState("");
   //console.log(toDoList, "toDoList");
-  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setToDo(e.target.value);
