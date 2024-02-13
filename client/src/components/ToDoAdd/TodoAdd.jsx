@@ -58,25 +58,20 @@ const Wrapper = styled(Box)(({ theme }) => ({
 
 const TodoAdd = () => {
   const [toDoList, setToDoList] = useState([]);
-  const [toDo, setToDo] = useState("");
+  const [toDos, setToDos] = useState("");
   //console.log(toDoList, "toDoList");
 
   const handleChange = (e) => {
-    setToDo(e.target.value);
+    setToDos(e.target.value);
   };
   const handelAddToDo = async () => {
-    const newTodo = {
-      id: Date.now(),
-      text: toDo,
-      completed: false,
-    };
     try {
       const response = await axios.post("http://localhost:5000/todo", {
-        data: newTodo,
+        toDo: toDos,
       });
       const res = response.data.data;
       setToDoList((prev) => res);
-      setToDo("");
+      setToDos("");
     } catch (err) {
       console.log(err, "errors");
     }
@@ -143,7 +138,7 @@ const TodoAdd = () => {
         <Input
           onChange={(e) => handleChange(e)}
           placeholder={"Add Todo"}
-          value={toDo}
+          value={toDos}
         />
         <CustomButton
           color="primary"
