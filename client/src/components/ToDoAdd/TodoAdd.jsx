@@ -58,15 +58,15 @@ const Wrapper = styled(Box)(({ theme }) => ({
 
 const TodoAdd = () => {
   const [toDoList, setToDoList] = useState([]);
+  //console.log("🚀 + TodoAdd + toDoList:", toDoList);
   const [toDos, setToDos] = useState("");
-  //console.log(toDoList, "toDoList");
 
   const handleChange = (e) => {
     setToDos(e.target.value);
   };
   const handelAddToDo = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/todo", {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}`, {
         toDo: toDos,
       });
       const res = response.data.data;
@@ -81,7 +81,7 @@ const TodoAdd = () => {
     const value = e.target.value;
     console.log(value);
     try {
-      const response = await axios.get("http://localhost:5000/todo", {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}`, {
         params: {
           search: value,
         },
@@ -92,20 +92,27 @@ const TodoAdd = () => {
       console.log(err, "errors");
     }
   };
-  const handleAllCompleted = () => {
+  const handleAllCompleted = async () => {
     toDoList.map(async (res) => {
       if (res.completed == false) {
         const editedToDo = {
-          id: res.id,
+          _id: res._id,
           text: res.text,
           completed: true,
         };
         try {
-          const response = await axios.put("http://localhost:5000/todo", {
+          const response = await axios.put(`${process.env.REACT_APP_API_URL}`, {
             data: editedToDo,
           });
-          const res = response.data.data;
-          setToDoList((prev) => res);
+          const upDatedTodo = response.data.data;
+          // console.log("🚀 + toDoList.map + res:", upDatedTodo);
+          //return upDatedTodo;
+
+          setToDoList((prev) => {
+            return prev.map((data) =>
+              data._id === res._id ? upDatedTodo : data
+            );
+          });
         } catch (err) {
           console.log(err, "errors");
         }
@@ -116,16 +123,20 @@ const TodoAdd = () => {
     toDoList.map(async (res) => {
       if (res.completed == true) {
         const editedToDo = {
-          id: res.id,
+          _id: res._id,
           text: res.text,
           completed: false,
         };
         try {
-          const response = await axios.put("http://localhost:5000/todo", {
+          const response = await axios.put(`${process.env.REACT_APP_API_URL}`, {
             data: editedToDo,
           });
-          const res = response.data.data;
-          setToDoList((prev) => res);
+          const upDatedTodo = response.data.data;
+          setToDoList((prev) => {
+            return prev.map((data) =>
+              data._id === res._id ? upDatedTodo : data
+            );
+          });
         } catch (err) {
           console.log(err, "errors");
         }

@@ -34,19 +34,19 @@ const Wrapper = styled(Box)(({ theme }) => ({
 }));
 
 const ToDoList = ({ toDoList, setToDoList }) => {
-  const [statusOfInput, setStatusofInpuut] = useState({
+  const [statusOfInput, setStatusofInput] = useState({
     status: false,
     toDoId: 0,
   });
+  console.log(statusOfInput);
+
   const [editedToDo, setEditedToDo] = useState("");
 
-  console.log(toDoList, "toDoList");
-
-  const toDoDelete = async (id) => {
+  const toDoDelete = async (_id) => {
     try {
-      const response = await axios.delete("http://localhost:5000/todo", {
+      const response = await axios.delete(`${process.env.REACT_APP_API_URL}`, {
         params: {
-          toDoId: id,
+          toDoId: _id,
         },
       });
       const res = response.data.data;
@@ -56,19 +56,22 @@ const ToDoList = ({ toDoList, setToDoList }) => {
     }
   };
   const toDoCompleted = (data) => {
-    toDoList.map(async (res) => {
-      if (res.id == data) {
+    toDoList?.map(async (res) => {
+      if (res._id == data) {
         const editedToDo = {
-          id: res.id,
+          _id: res._id,
           text: res.text,
           completed: !res.completed,
         };
         try {
-          const response = await axios.put("http://localhost:5000/todo", {
+          const response = await axios.put(`${process.env.REACT_APP_API_URL}`, {
             data: editedToDo,
           });
           const res = response.data.data;
-          setToDoList((prev) => res);
+
+          setToDoList((prev) => {
+            return prev.map((data) => (data._id === res._id ? res : data));
+          });
         } catch (err) {
           console.log(err, "errors");
         }
@@ -82,20 +85,21 @@ const ToDoList = ({ toDoList, setToDoList }) => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/todo");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}`);
       const res = response.data.data;
+      // console.log("🚀 + fetchData + res:", res);
       setToDoList((prev) => res);
     } catch (err) {
       console.log(err, "errors");
     }
   };
 
-  const toDoEdit = (id, text) => {
+  const toDoEdit = (_id, text) => {
     setEditedToDo(text);
-    setStatusofInpuut((prev) => ({
+    setStatusofInput((prev) => ({
       ...prev,
       status: !prev.status,
-      toDoId: id,
+      toDoId: _id,
     }));
   };
   const handleChange = (e) => {
@@ -103,19 +107,22 @@ const ToDoList = ({ toDoList, setToDoList }) => {
   };
   const handleSubmit = async (data) => {
     toDoList.map(async (res) => {
-      if (res.id == data) {
+      if (res._id == data) {
         const newToDo = {
-          id: res.id,
+          _id: res._id,
           text: editedToDo,
           completed: res.completed,
         };
         try {
-          const response = await axios.put("http://localhost:5000/todo", {
+          const response = await axios.put(`${process.env.REACT_APP_API_URL}`, {
             data: newToDo,
           });
           const res = response.data.data;
-          setToDoList((prev) => res);
-          setStatusofInpuut((prev) => !prev.status);
+
+          setToDoList((prev) => {
+            return prev.map((data) => (data._id === res._id ? res : data));
+          });
+          setStatusofInput((prev) => !prev.status);
         } catch (err) {
           console.log(err, "errors");
         }
@@ -131,13 +138,35 @@ const ToDoList = ({ toDoList, setToDoList }) => {
         <Stack spacing={2}>
           {toDoList?.map((data, i) => (
             <Paper elevation={1} className="paper-secion" key={i}>
-              {data.completed ? (
+              {/* {data?.completed ? (
                 <Box>
                   <s>{data?.text}</s>
                 </Box>
               ) : (
                 <Box>
-                  {statusOfInput.status && statusOfInput.toDoId === data.id ? (
+                  {statusOfInput.status && statusOfInput.toDoId === data._id ? (
+                    <TextField
+                      id="standard-basic"
+                      //label="Standard"
+                      variant="standard"
+                      value={editedToDo}
+                      onChange={(e) => {
+                        handleChange(e);
+                      }}
+                    />
+                  ) : (
+                    data?.text
+                  )}
+                </Box>
+              )} */}
+
+              {data?.completed ? (
+                <Box>
+                  <s>{data?.text}</s>
+                </Box>
+              ) : (
+                <Box>
+                  {statusOfInput.status && statusOfInput.toDoId === data._id ? (
                     <TextField
                       id="standard-basic"
                       //label="Standard"
@@ -153,13 +182,15 @@ const ToDoList = ({ toDoList, setToDoList }) => {
                 </Box>
               )}
               <Box>
-                {statusOfInput.status && statusOfInput.toDoId === data.id ? (
+                {data.completed === false &&
+                statusOfInput.status &&
+                statusOfInput.toDoId === data._id ? (
                   <Box>
                     <Button
                       variant="contained"
                       size="small"
                       color="success"
-                      onClick={() => handleSubmit(data.id)}
+                      onClick={() => handleSubmit(data._id)}
                       sx={{ marginRight: "10px" }}
                     >
                       save
@@ -169,7 +200,7 @@ const ToDoList = ({ toDoList, setToDoList }) => {
                       size="small"
                       color="error"
                       onClick={() =>
-                        setStatusofInpuut((prev) => ({
+                        setStatusofInput((prev) => ({
                           ...prev,
                           status: !prev.status,
                         }))
@@ -180,24 +211,29 @@ const ToDoList = ({ toDoList, setToDoList }) => {
                   </Box>
                 ) : (
                   <Box className="paper-secion-icons">
-                    <CustomButton
-                      color="primary"
-                      size="large"
-                      onClick={() => toDoEdit(data.id, data.text)}
-                    >
-                      <EditSharpIcon fontSize="inherit" />
-                    </CustomButton>
+                    {data.completed === false && (
+                      <>
+                        <CustomButton
+                          color="primary"
+                          size="large"
+                          onClick={() => toDoEdit(data._id, data.text)}
+                        >
+                          <EditSharpIcon fontSize="inherit" />
+                        </CustomButton>
+                      </>
+                    )}
+
                     <CustomButton
                       color="error"
                       size="large"
-                      onClick={() => toDoDelete(data.id)}
+                      onClick={() => toDoDelete(data._id)}
                     >
                       <DeleteTwoToneIcon fontSize="inherit" />
                     </CustomButton>
                     <CustomButton
                       color="success"
                       size="large"
-                      onClick={() => toDoCompleted(data.id)}
+                      onClick={() => toDoCompleted(data._id)}
                     >
                       <DoneAllTwoToneIcon fontSize="inherit" />
                     </CustomButton>
